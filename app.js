@@ -1,138 +1,144 @@
-// API key
-const auth = "";
+// API key for images.
+const API_KEY = "";
 
-//Defining my variables.  Input Text, Search button and Next page.
-const input = document.querySelector("input");
-const searchbutton = document.querySelector(".searchbutton");
-const next = document.querySelector(".next");
+// DOM Elements
+const searchInput = document.querySelector("input");
+const searchButton = document.querySelector(".searchbutton");
+const nextPageButton = document.querySelector(".next");
+const showGalleryButton = document.querySelector(".show-gallery");
 
-//Show Gallery variables.
-const showGalleryBtn = document.querySelector(".show-gallery");
-const likeImages = [];
+// Arrays to store liked and gallery images
+const likedImages = [];
 const galleryImages = [];
-let showingLiked = false;
 
-// Variables for page number, search and query.
-let pagernr = 1;
-let search = false;
-let query = "";
+// Flags and data holders
+let isShowingLikedImages = false;
+let pageNumber = 1;
+let isSearchActive = false;
+let searchText = "";
 
-// Input Text Prevent Default.
-input.addEventListener("input", (e) => {
+// Event Listener for Search Input - updates search text
+searchInput.addEventListener("input", (e) => {
   e.preventDefault();
-  query = e.target.value;
+  searchText = e.target.value;
 });
 
-// When clicking Show Gallery button it will loop through selected image and show them one by one.
-showGalleryBtn.addEventListener("click", (e) => {
+// Event Listener for Show Gallery Button - toggles between liked images and all images
+showGalleryButton.addEventListener("click", (e) => {
   e.preventDefault();
-  if (showingLiked) {
-    showingLiked = false;
-    CuratedPhotos(0);
+  if (isShowingLikedImages) {
+    isShowingLikedImages = false;
+    loadImages(pageNumber);
   } else {
-    showingLiked = true;
-    document.querySelector(".gallery").innerHTML = "";
-    likeImages.forEach((photo) => {
-      const pic = document.createElement("div");
-      pic.innerHTML = `<img onClick="addToSelected('${photo}')" src = ${photo}> <p>Photo: Photographer</p>
-    <a href=${photo}>Download</a>
-    `;
-      document.querySelector(".gallery").appendChild(pic);
-    });
+    isShowingLikedImages = true;
+    displayLikedImages();
   }
 });
 
-// Function for selected images.
-function addToSelected(e) {
-  const { src } = e;
-  console.log(e);
-  console.log(e.src);
-  if (likeImages.indexOf(src) > -1) {
-    likeImages.splice(likeImages.indexOf(src), 1);
-    e.classList.remove("selected-img");
+// Function to add/remove images from the liked images array
+function toggleImageSelection(imageElement) {
+  const { src } = imageElement;
+
+  const imageIndex = likedImages.indexOf(src);
+  if (imageIndex > -1) {
+    likedImages.splice(imageIndex, 1);
+    imageElement.classList.remove("selected-img");
   } else {
-    e.classList.add("selected-img");
-    likeImages.push(src);
+    imageElement.classList.add("selected-img");
+    likedImages.push(src);
   }
-  console.log(likeImages);
-  console.log(likeImages.length);
 }
 
-// Function for first load of page showing one default picture.
-async function CuratedPhotos(pagenr) {
+// Function to display curated images when page loads
+async function loadImages(pageNumber) {
   const data = await fetch(
-    `https://api.pexels.com/v1/curated?per_page=0&page=${pagenr}`,
+    `https://api.pexels.com/v1/curated?per_page=0&page=${pageNumber}`,
     {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: auth,
+        Authorization: API_KEY,
       },
     }
   );
   const result = await data.json();
-  result.photos.forEach((photo) => {
-    const pic = document.createElement("div");
-    // addToSelected('${photo.src.large}')
-    const selected = likeImages.indexOf(photo.src.large) > -1;
-    pic.innerHTML = `<img class="${
-      selected ? "selected-img" : ""
-    }" onClick="addToSelected(this)" src = ${photo.src.large}> <p>Photo: ${
-      photo.photographter
-    }</p>
-    <a href=${photo.src.large}>Download</a>
-    `;
-    document.querySelector(".gallery").appendChild(pic);
-  });
+  displayImages(result.photos);
 }
 
-// Function for searching and fetching images via API.
-async function SearchPhotos(query, pagenr) {
+// Function to search images via Pexels API
+async function searchImages(searchText, pageNumber) {
   const data = await fetch(
-    `https://api.pexels.com/v1/search?query=${query}&per_page=15&page=${pagenr}`,
+    `https://api.pexels.com/v1/search?query=${searchText}&per_page=15&page=${pageNumber}`,
     {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: auth,
+        Authorization: API_KEY,
       },
     }
   );
   const result = await data.json();
-  result.photos.forEach((photo) => {
-    galleryImages.push();
-    const pic = document.createElement("div");
-    pic.innerHTML = `<img src = ${photo.src.large} onClick="addToSelected(this)"> <p>Photo: ${photo.photographer}</p>
-    <a href=${photo.src.large}>Download</a>
+  displayImages(result.photos);
+}
+
+// Function to display images in the gallery
+function displayImages(images) {
+  const gallery = document.querySelector(".gallery");
+  gallery.innerHTML = "";
+  images.forEach((image) => {
+    const imageElement = document.createElement("div");
+    const isSelected = likedImages.includes(image.src.large);
+    imageElement.innerHTML = `
+      <img class="${isSelected ? "selected-img" : ""}" onClick="toggleImageSelection(this)" src="${image.src.large}">
+      <p>Photo: ${image.photographer}</p>
+      <a href="${image.src.large}">Download</a>
     `;
-    document.querySelector(".gallery").appendChild(pic);
+    gallery.appendChild(imageElement);
   });
 }
 
-// Event when clicking Search button.
-searchbutton.addEventListener("click", () => {
-  if (input.value === "") return;
-  clear();
-  search = true;
-  SearchPhotos(query, pagernr);
-  pagernr++;
+// Function to display liked images in the gallery
+function displayLikedImages() {
+  const gallery = document.querySelector(".gallery");
+  gallery.innerHTML = "";
+  likedImages.forEach((imageSrc) => {
+    const imageElement = document.createElement("div");
+    imageElement.innerHTML = `
+      <img class="selected-img" onClick="toggleImageSelection(this)" src="${imageSrc}">
+      <p>Photo: Photographer</p>
+      <a href="${imageSrc}">Download</a>
+    `;
+    gallery.appendChild(imageElement);
+  });
+}
+
+// Event Listener for Search Button
+searchButton.addEventListener("click", () => {
+  if (searchInput.value === "") return;
+  resetGallery();
+  isSearchActive = true;
+  searchImages(searchText, pageNumber);
+  pageNumber++;
 });
 
-function clear() {
-  input.value = "";
+// Function to clear gallery and reset page number
+function resetGallery() {
+  searchInput.value = "";
   document.querySelector(".gallery").innerHTML = "";
-  pagernr = 1;
+  pageNumber = 1;
 }
 
-// Event for clicking Next Page button.
-next.addEventListener("click", () => {
-  if (!search) {
-    pagernr++;
-    CuratedPhotos(pagernr);
+// Event Listener for Next Page Button
+nextPageButton.addEventListener("click", () => {
+  if (!isSearchActive) {
+    pageNumber++;
+    loadImages(pageNumber);
   } else {
-    if (query.valueOf === "") return;
-    pagernr++;
-    SearchPhotos(query, pagernr);
+    if (searchText === "") return;
+    pageNumber++;
+    searchImages(searchText, pageNumber);
   }
 });
-CuratedPhotos(pagernr);
+
+// Initial load of curated images
+loadImages(pageNumber);
