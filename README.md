@@ -50,7 +50,10 @@ This project is an image gallery web application that allows users to search for
 
 ## Demo
 Live: (https://mahmoods-image-gallery.vercel.app/)
-![Live Demo] ()
+
+![Live Demo](https://github.com/MahmoodWebDev/image-gallery-api-assignment/blob/main/demo.png)
+
+
 ## Author
 Mahmood Shah
 
