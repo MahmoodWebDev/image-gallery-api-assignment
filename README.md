@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is an image gallery web application that allows users to search for images and like them. It fetches images from the Pexels API and provides an interactive UI for image search and selection.
+This project unveils an elegant web-based image gallery crafted with simple HTML, CSS, and Vanilla JavaScript. Leveraging the Pexels API, the application offers an intuitive user interface for effortless image discovery and favoriting.
 
 
 ## Features
