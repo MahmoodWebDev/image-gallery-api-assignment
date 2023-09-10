@@ -1,4 +1,4 @@
-# Image-Based Image Gallery
+# API-based Image Gallery
 
 ## Overview
 
