@@ -4,7 +4,6 @@
 
 This project is an image gallery web application that allows users to search for images and like them. It fetches images from the Pexels API and provides an interactive UI for image search and selection.
 
-Live: (https://mahmoods-image-gallery.vercel.app/)
 
 ## Features
 
@@ -48,6 +47,10 @@ Live: (https://mahmoods-image-gallery.vercel.app/)
 - `style.css`: Styling and layout
 - `app.js`: Business logic and API calls
 
+
+## Demo
+Live: (https://mahmoods-image-gallery.vercel.app/)
+![Live Demo] ()
 ## Author
 Mahmood Shah
 
